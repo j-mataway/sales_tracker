@@ -408,7 +408,6 @@ export default function App() {
                 </button>
               </div>
             </form>
-            <p className="hint">Username is prefilled as <strong>admin</strong>. Password is <strong>Safilo2026</strong>.</p>
           </div>
         </div>
       )}
