@@ -27,6 +27,12 @@ const defaultData: AppData = {
   locations: []
 };
 
+function migrateEmployeeData(employee: any): any {
+  // Strip old emoji field if present, it's no longer used
+  const { emoji, ...rest } = employee;
+  return rest;
+}
+
 function getFirestoreClient() {
   if (!FIREBASE_ENABLED) {
     return null;
@@ -51,7 +57,16 @@ export async function loadAppData(): Promise<{ data: AppData; usingLocalFallback
       console.log('[Storage] Firestore read succeeded, doc exists:', snapshot.exists());
       if (snapshot.exists()) {
         console.log('[Storage] Using Firestore data');
-        return { data: snapshot.data() as AppData, usingLocalFallback: false };
+        const data = snapshot.data() as AppData;
+        // Migrate employee data to strip old emoji field
+        const migratedData = {
+          ...data,
+          locations: data.locations.map(loc => ({
+            ...loc,
+            employees: loc.employees.map(migrateEmployeeData)
+          }))
+        };
+        return { data: migratedData, usingLocalFallback: false };
       }
     } catch (error) {
       console.warn('Firestore load failed, falling back to local storage:', error);
@@ -61,7 +76,16 @@ export async function loadAppData(): Promise<{ data: AppData; usingLocalFallback
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      return { data: JSON.parse(raw) as AppData, usingLocalFallback: true };
+      const data = JSON.parse(raw) as AppData;
+      // Migrate employee data to strip old emoji field
+      const migratedData = {
+        ...data,
+        locations: data.locations.map(loc => ({
+          ...loc,
+          employees: loc.employees.map(migrateEmployeeData)
+        }))
+      };
+      return { data: migratedData, usingLocalFallback: true };
     }
   } catch (error) {
     console.error('Failed to load saved data:', error);

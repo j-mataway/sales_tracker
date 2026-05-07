@@ -2,7 +2,6 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { AppData, Employee, LocationData } from './types';
 import { loadAppData, saveAppData } from './storage';
 
-const horseEmojis = ['🐎', '🏇', '🐴', '🐂', '🐐', '🦓', '🦬', '🪶'];
 const horseColors = ['#6b211a', '#881337', '#92400e', '#7a5230', '#4f3322', '#14532d', '#7c0a02', '#a91f1f'];
 const weekCount = 12;
 const weekLabels = Array.from({ length: weekCount }, (_, index) => `Week ${index + 1}`);
@@ -13,7 +12,6 @@ function createEmployee(name: string, index: number): Employee {
     id: crypto.randomUUID(),
     name,
     color: horseColors[index % horseColors.length],
-    emoji: horseEmojis[index % horseEmojis.length],
     salesByWeek: Array(weekCount).fill(0)
   };
 }
@@ -277,7 +275,7 @@ export default function App() {
                       return (
                         <div className="horse-row" key={employee.id}>
                           <div className="horse-label" style={{ background: employee.color }}>
-                            <span className="horse-emoji">{employee.emoji}</span>
+                            <span className="horse-emoji" style={{ transform: 'scaleX(-1)' }}>🏇</span>
                             <div>
                               <strong>{employee.name}</strong>
                               <div>{getEmployeeTotal(employee)} total sales</div>
@@ -289,9 +287,8 @@ export default function App() {
                             )}
                           </div>
                           <div className="track-rail">
-                            <div className="track-progress" style={{ width: `${positionPct}%` }}>
-                              <span className="horse-puppet">{employee.emoji}</span>
-                            </div>
+                            <div className="track-progress" style={{ width: `${positionPct}%` }}></div>
+                            <span className="horse-puppet" style={{ left: `${positionPct}%` }}>🏇</span>
                           </div>
                         </div>
                       );
@@ -353,7 +350,7 @@ export default function App() {
                         location.employees.map((employee) => (
                           <tr key={employee.id}>
                             <td className="employee-name">
-                              <span className="horse-emoji">{employee.emoji}</span>
+                              <span className="horse-emoji">🏇</span>
                               {employee.name}
                               {isAdmin && (
                                 <button className="secondary delete-button" onClick={() => deleteEmployee(location.id, employee.id)}>
